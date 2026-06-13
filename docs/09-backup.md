@@ -83,7 +83,7 @@ find "${DUMP_DIR}" -name 'all-*.sql' -mtime +7 -delete
 
 # --- SSD 側のソースを DEST/ssd/ に ---
 rsync -aH --delete --numeric-ids \
-  --exclude='appdata/redis/' \
+  --exclude='/redis/' \
   --exclude='docker/' \
   ${LINK_DEST_SSD} \
   "${SSD_ROOT}/appdata/" \
@@ -91,8 +91,12 @@ rsync -aH --delete --numeric-ids \
   "${DEST}/ssd/"
 
 # --- HDD 側のソースを DEST/hdd/ に (自己参照しないよう backups を除外) ---
+# 注意: rsync ソースに末尾 / を付けて中身を渡している場合、除外パターンは
+# ソースルート基準で書く必要がある。`shares/backups/` のような prefix 付き
+# パターンは一致せず、バックアップが自分自身を再帰的にコピーしてしまう。
+# 先頭 `/` で anchor して「このソース直下の backups/」を意味させる。
 rsync -aH --delete --numeric-ids \
-  --exclude='shares/backups/' \
+  --exclude='/backups/' \
   ${LINK_DEST_HDD} \
   "${HDD_ROOT}/shares/" \
   "${HDD_ROOT}/appdata/" \
@@ -201,6 +205,8 @@ USB 外付け HDD を追加した時:
 - **rsync がパーミッションエラー**: root で実行しているか (`sudo` 経由)
 - **空き容量不足**: `du -sh <HDD_ROOT>/shares/backups/*` で各世代のサイズを確認。`RETENTION_DAYS` を下げる
 - **`--link-dest` が効かずサイズが増え続ける**: 前回の `latest` シンボリックリンクが正しく張れているか確認
+- **`No space left on device` で HDD が突然満杯になる / `latest` が古いまま更新されない**: `--exclude` がソースルート基準で正しく書かれているか確認。rsync ソースが `${HDD_ROOT}/shares/` (末尾 `/`) のとき、内部パスは `backups/...` から始まるので、`--exclude='shares/backups/'` だと一致せず**バックアップが自分自身を再帰コピー**して暴走する。正しくは `--exclude='/backups/'`。snapshot のログに `.../backups/snapshot-X/hdd/backups/snapshot-X/...` のような深い入れ子パスが出ていればこれが原因
+- **暴走後の片付け**: 全 snapshot を削除 → スクリプト修正 → 手動で 1 回テスト実行 → snapshot 内に `backups/` ディレクトリが存在しないことを確認してから cron を戻す
 
 ## 次へ
 
