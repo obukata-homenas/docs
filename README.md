@@ -22,6 +22,7 @@
 | OS | OpenMediaVault (OMV) 8 | Debian 13 ベース |
 | ファイル共有・同期 | Nextcloud | Docker コンテナで運用。夫婦 2 アカウントで共有フォルダを構成 |
 | 写真・動画管理 | Immich | Docker コンテナで運用。スマートフォン自動バックアップ・顔認識・AI 検索。LAN 内のみ公開 (`immich.home.lan`) |
+| ダッシュボード | Homepage | Docker コンテナで運用。各サービスへの入口＋ステータス＋システム/ストレージ情報を集約。LAN 内のみ公開 (`dashboard.home.lan`) |
 | コンテナ基盤 | Docker + docker compose | omv-extras の compose プラグイン経由 |
 | VPN | WireGuard (Docker, `linuxserver/wireguard`) | Mac mini 上で稼働。ルータで UDP 51820 のみ開放。クライアント側は AGH を DNS として参照 (PEERDNS) |
 | DDNS | DuckDNS | グローバル IP が動的なため、`/srv/appdata/duckdns/duck.sh` を `/etc/cron.d/duckdns` で 5 分おきに更新 |
@@ -109,6 +110,7 @@
 10. [各クライアントからの接続確認](docs/10-verification.md)
 11. (オプション) [n8n で家庭用自動化ハブを立てる](docs/11-n8n.md)
 12. [Immich の導入 (写真・動画管理)](docs/12-immich.md)
+13. [ダッシュボード (Homepage) の導入](docs/13-dashboard.md)
 
 構築完了後の定常運用 (端末追加・アカウント追加・障害対応など) は [docs/operations.md](docs/operations.md) にまとめてある。
 
@@ -122,7 +124,7 @@
 
 - 外付けストレージの追加時期と具体的な機種・容量
 - **外部公開方式の方針転換**: 現状は VPN (WireGuard) 経由のみだが、「VPN OFF で家でも外でも同じ FQDN で繋がる」運用に移行するか検討中。候補は Cloudflare Tunnel (推奨) または古典的ポート開放 (Let's Encrypt)
-- **AFFiNE (Notion 風セルフホストツール) 本採用判断**: 試用中。常用するなら `docs/13-affine.md` として手順化予定
+- **AFFiNE (Notion 風セルフホストツール) 本採用判断**: 試用中。常用するなら `docs/14-affine.md` として手順化予定
 - バックアップの自動通知 (失敗時に Slack / メール) と日次ヘルスチェックのスクリプト化
 
 ## 変更履歴
@@ -141,3 +143,4 @@
 | 2026-05-11 | バックアップ運用の重大バグを 2 件修正: ① `mysqldump` → `mariadb-dump` (MariaDB 11.x で `mysqldump` 廃止対応)、② rsync の `--exclude='shares/backups/'` が anchor 不足で機能せず、バックアップが自身を再帰コピーして HDD を 100% まで埋め尽くす事故が発生。`--exclude='/backups/'` に修正、`docs/09-backup.md` のトラブルシュート節と本 README 双方に再発防止メモを追記 |
 | 2026-06-13 | Immich 導入。Docker Compose で immich-server / immich-machine-learning / immich_redis / immich_postgres を追加。写真データを HDD (`<HDD_ROOT>/appdata/immich/`)、DB を SSD (`/srv/appdata/immich-db/`) に配置。NPM で `immich.home.lan` → port 2283 に転送 (LAN 内のみ)。手順は `docs/12-immich.md` |
 | 2026-06-13 | SSH (Termius / macOS) 接続時に日本語が入力・表示できない問題に対処。クライアントが送る不正な `LC_CTYPE=UTF-8` を `~/.bashrc` / `~/.inputrc` で UTF-8 ロケールに上書き。手順とトラブルシュートを `docs/operations.md` §9 に追加 |
+| 2026-06-14 | ダッシュボード Homepage を導入。Docker Compose で `homepage` を追加し、各サービスへのリンク＋稼働ステータス＋CPU/メモリ/SSD/HDD 使用量を集約。NPM で `dashboard.home.lan` に転送 (LAN 内のみ)。手順は `docs/13-dashboard.md` |
