@@ -23,7 +23,7 @@
 | compose ファイル群 | `/srv/compose/<svc>/` (root:root) |
 | 各コンテナの永続データ (SSD 側) | `/srv/appdata/<svc>/` |
 | Nextcloud のユーザーデータ (HDD) | `/srv/dev-disk-by-uuid-3a9a7624-afbb-4993-a1dd-38e2bd1546f5/appdata/nextcloud/data/` |
-| バックアップ宛先 (HDD) | `/srv/dev-disk-by-uuid-3a9a7624-afbb-4993-a1dd-38e2bd1546f5/shares/backups/` |
+| バックアップ宛先 (外付け HDD, 2026-06-23〜) | `/srv/dev-disk-by-uuid-d29cca21-29f9-4906-ba42-c6f813a7a8b1/snapshots/` (内蔵 `…3a9a7624…/shares/backups/` から移行) |
 | バックアップスクリプト | `/usr/local/sbin/homenas-backup.sh` (毎日 03:00 / cron) |
 | バックアップログ | `/var/log/homenas-backup.log` |
 | DuckDNS 更新スクリプト | `/srv/appdata/duckdns/duck.sh` (`/etc/cron.d/duckdns` で 5 分おき) |
