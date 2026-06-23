@@ -66,10 +66,9 @@
 ### 現時点
 
 - **SSD (121GB)** = `/dev/sdb` (`/` にマウント): OS / Docker / 各コンテナ設定 (MariaDB, Redis, NPM, WireGuard, AGH, DuckDNS) / Nextcloud の PHP 本体。compose は `/srv/compose/<svc>/`、各コンテナの永続データは `/srv/appdata/<svc>/`
-- **HDD (1TB)** = `/dev/sda1` (`/srv/dev-disk-by-uuid-3a9a7624-afbb-4993-a1dd-38e2bd1546f5/` にマウント、以後 `<HDD_ROOT>`): Nextcloud の全ユーザーデータ (`<HDD_ROOT>/appdata/nextcloud/data/`)。バックアップ宛先は外付け HDD へ移行済み (下記)
-- **外付け HDD (3TB)** = `/dev/sdc1` (ext4 / UUID `d29cca21-29f9-4906-ba42-c6f813a7a8b1`、`/srv/dev-disk-by-uuid-d29cca21-29f9-4906-ba42-c6f813a7a8b1/` にマウント): バックアップ専用 (`…/snapshots/`)。2026-06-23 追加
-- **SSD 側データはクロスドライブ保護**される (SSD → 外付け HDD にバックアップされるため、SSD 故障で完全消失しない)
-- **HDD 側のユーザーデータも外付け HDD へクロスドライブ保護** (2026-06-23〜。別筐体に退避するため HDD 故障でも消失しない)
+- **HDD (1TB)** = `/dev/sda1` (`/srv/dev-disk-by-uuid-3a9a7624-afbb-4993-a1dd-38e2bd1546f5/` にマウント、以後 `<HDD_ROOT>`): Nextcloud の全ユーザーデータ (`<HDD_ROOT>/appdata/nextcloud/data/`)、バックアップ宛先 (`<HDD_ROOT>/shares/backups/`)
+- **SSD 側データはクロスドライブ保護**される (SSD → HDD にバックアップされるため、SSD 故障で完全消失しない)
+- **HDD 側のユーザーデータは同一ドライブ内バックアップ** (HDD 故障で両方失う)。誤削除・ランサムウェア対策としての位置付け。※2026-06-23 に外付け HDD への移行を試みたが、当該ドライブが SMART 故障判定だったため中止。健康な外付け入手後に再挑戦予定 (クロスドライブ化はそれまで保留)
 - **Immich データ (HDD)** = `<HDD_ROOT>/appdata/immich/` (写真・動画アップロード)、**Immich DB (SSD)** = `/srv/appdata/immich-db/`
 
 ### 将来の拡張方針
@@ -82,7 +81,7 @@
 ## バックアップ方針
 
 - Nextcloud データディレクトリおよび設定ファイル、DB (`mariadb-dump`)、Immich DB (`pg_dump`)、compose 一式を `/usr/local/sbin/homenas-backup.sh` (rsync) で定期コピー
-- 宛先は外付け HDD (`/srv/dev-disk-by-uuid-d29cca21-29f9-4906-ba42-c6f813a7a8b1/snapshots/`)。2026-06-23 に内蔵 HDD 内 (`<HDD_ROOT>/shares/backups/`) から移行済み
+- 当面の宛先は HDD 内 (`<HDD_ROOT>/shares/backups/`)、将来は外付けへ移行 (2026-06-23 に一度試みたが用意した外付けが SMART 故障で中止)
 - `--link-dest` によるハードリンク世代管理で日次スナップショットを取得 (世代保持: 14 日)
 - 頻度: 日次 03:00 (`/etc/cron.d/homenas-backup`)。ログ: `/var/log/homenas-backup.log`
 - 詳細は [docs/09-backup.md](docs/09-backup.md) 参照
@@ -145,4 +144,4 @@
 | 2026-06-13 | Immich 導入。Docker Compose で immich-server / immich-machine-learning / immich_redis / immich_postgres を追加。写真データを HDD (`<HDD_ROOT>/appdata/immich/`)、DB を SSD (`/srv/appdata/immich-db/`) に配置。NPM で `immich.home.lan` → port 2283 に転送 (LAN 内のみ)。手順は `docs/12-immich.md` |
 | 2026-06-13 | SSH (Termius / macOS) 接続時に日本語が入力・表示できない問題に対処。クライアントが送る不正な `LC_CTYPE=UTF-8` を `~/.bashrc` / `~/.inputrc` で UTF-8 ロケールに上書き。手順とトラブルシュートを `docs/operations.md` §9 に追加 |
 | 2026-06-14 | ダッシュボード Homepage を導入。Docker Compose で `homepage` を追加し、各サービスへのリンク＋稼働ステータス＋CPU/メモリ/SSD/HDD 使用量を集約。NPM で `dashboard.home.lan` に転送 (LAN 内のみ)。手順は `docs/13-dashboard.md` |
-| 2026-06-23 | バックアップ先を内蔵 HDD 内 (`<HDD_ROOT>/shares/backups/`) から**外付け HDD (TOSHIBA 3TB / ext4 / UUID `d29cca21-29f9-4906-ba42-c6f813a7a8b1`)** へ移行。`homenas-backup.sh` の `DEST_ROOT` のみ外付けの `snapshots/` に変更 (元データ `HDD_ROOT` は不変)、HDD 側データもクロスドライブ保護に。大容量ディスクの ext4 作成は OMV UI(遅延初期化オフ)だと連続書き込みで中断したため CLI `mkfs.ext4 -E lazy_itable_init=1` で実施。詳細は `docs/09-backup.md` |
+| 2026-06-23 | 外付け HDD (TOSHIBA 3TB) へバックアップ先を移行しようとしたが、**SMART 故障判定** (Reallocated_Sector_Ct 2005 / FAILING_NOW / 通電約5.2年) と判明したため**中止**し、内蔵 HDD 宛先のまま運用継続。健康なドライブ入手後に再挑戦。教訓: ドライブは使用前に `smartctl` で健康確認 / 大容量 ext4 は `lazy_itable_init=1` で作成。内蔵 sda・sdb は SMART PASSED で健全と確認済み。詳細は `docs/09-backup.md` |

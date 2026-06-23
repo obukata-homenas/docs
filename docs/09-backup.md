@@ -15,7 +15,7 @@
 
 > **いずれも外付けドライブを追加した時点で、宛先パスを差し替えて本来のバックアップ運用に移行する前提**。
 
-> **2026-06-23 実施済み**: 外付け HDD (TOSHIBA 3TB / ext4 / ラベル `backup` / UUID `d29cca21-29f9-4906-ba42-c6f813a7a8b1`) を追加し `/srv/dev-disk-by-uuid-d29cca21-29f9-4906-ba42-c6f813a7a8b1` にマウント。`homenas-backup.sh` の `DEST_ROOT` を `${HDD_ROOT}/shares/backups` → `/srv/dev-disk-by-uuid-d29cca21-29f9-4906-ba42-c6f813a7a8b1/snapshots` に変更し、**HDD 側データも別筐体へクロスドライブ保護**されるようになった (`HDD_ROOT` は引き続きバックアップ「元」を指す)。以下は当初 (内蔵 HDD 宛先) の構築記録。大容量ディスクの ext4 作成は OMV UI だと遅延初期化オフ (`lazy_itable_init=0`) で連続書き込みが長時間化し中断したため、CLI の `mkfs.ext4 -E lazy_itable_init=1,lazy_journal_init=1` で実施した。
+> **2026-06-23 外付け移行を試みたが中止**: 外付け HDD (TOSHIBA DT01ACA300 3TB) を追加してバックアップ先にしようとしたが、**SMART が故障判定** (Reallocated_Sector_Ct 2005 / FAILING_NOW / 通電約5.2年、移行作業中に WRITE/READ エラーも記録され、最初の ext4 作成が途中で止まったのもこの不良セクタが原因と判明) だったため**中止し、宛先は内蔵 HDD のまま** (`<HDD_ROOT>/shares/backups/`) 運用している。健康なドライブを入手したら再挑戦する。教訓: ①余り/中古ドライブは使用前に `sudo smartctl -a -d sat /dev/sdX` で健康確認 (overall-health PASSED・Reallocated/Pending=0)。②大容量の ext4 作成は CLI の `mkfs.ext4 -E lazy_itable_init=1,lazy_journal_init=1` が速い (OMV UI は遅延初期化オフで全 inode 連続書き込み＝長時間化)。
 
 ## 前提
 
