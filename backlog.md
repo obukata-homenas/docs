@@ -12,11 +12,6 @@
 
 ## 近いうち
 
-### Tailscale を導入して VPN を快適化（非公開アクセスの土台）
-- 優先度: 中
-- 背景: 外出先から Immich/Nextcloud のアプリや dashboard に繋ぎたいが、Cloudflare Access はネイティブアプリを壊す＆管理系は公開したくない → VPN前提の非公開運用が安全。現状の WireGuard はフルトンネルで「帰宅後に通常ネットが切れる」問題あり。Tailscale はスプリットトンネル既定・ポート開放/DDNS不要・個人無料で、これを解決＆ラク。
-- 次の一歩: サーバ(OMV/Debian)に Tailscale 導入 → スマホ/PC に導入 →（必要なら subnet router で自宅LAN全体に到達）→ Immich/Nextcloud/dashboard を Tailscale経由で。既存 WireGuard は並行運用 → 安定したら撤去検討。
-
 ### バイブコーディングをマルチエージェント開発に進化させる
 - 優先度: 中
 - 背景: 今は技術スタックや実装方法まで指定するスタイル。ゴールだけ伝えて、プランナー/エンジニア/デザイナー的なエージェントに分担させて自律開発する手法を試したい。
@@ -50,6 +45,11 @@
 - 次の一歩: 健康な外付け（購入後にまずSMART確認）を入手 → 既定手順（mkfs lazy init → OMVマウント → homenas-backup.sh の DEST_ROOT 差し替え → ダッシュボードの BACKUPS_PATH）で移行
 
 ## 完了
+
+### Tailscale を導入して VPN を快適化（非公開アクセスの土台）
+- 優先度: 中
+- 背景: 外出先から Immich/Nextcloud アプリ・dashboard に繋ぎたい＆WireGuardのフルトンネルで帰宅時にネットが切れる問題を解消したかった。
+- 次の一歩: 完了（2026-06-27）。サーバ＋スマホ/PC に Tailscale 導入(squib02@gmail.com)。スプリットトンネルで常時ONでも通常ネットOK・外出先から接続OKを実証。Tailscale DNS=AdGuard(100.72.254.73)に「Override local DNS」→全端末で広告ブロック＆内部名解決(バイパスは Tailscale OFF)。AdGuardに `*.obukata.uk`→100.72.254.73 のrewrite、NPMで `*.obukata.uk` のLet's Encryptワイルドカード証明書(CloudflareトークンでDNS-01)＋Proxy Host(immich/nextcloud/dashboard.obukata.uk)。Nextcloudは override.yml の OVERWRITEHOST 削除で多ドメイン対応。アプリは `https://〜.obukata.uk` で設定・動作確認済み。subnet router / WireGuard撤去 は任意で後日。
 
 ### Cloudflare Tunnel で自宅サーバを公開（セキュリティ最優先）
 - 優先度: 中
