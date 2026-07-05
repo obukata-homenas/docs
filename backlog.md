@@ -10,6 +10,26 @@
 
 ## 今やる
 
+### docs リポジトリの未コミット変更を確認・コミット
+- 優先度: 中
+- 背景: 2026-07-05 のサーバ状況確認で、`/opt/ops/docs` に未コミットの変更(`plans/apps-docs-migration.md` の修正、`plans/phase0-inventory.md` の未追跡ファイル)があると判明。
+- 次の一歩: 内容を確認し、問題なければ commit & push(ブランチ→PR方式で)。
+
+### server-config のテストブランチ/PR の片付け
+- 優先度: 低
+- 背景: 2026-07-05 に branch→push→PR フローの動作確認で作った `aiagent/test-pr` ブランチ・PRが残っている。作業ツリーも main ではなくそのブランチのままになっている。
+- 次の一歩: `main` に戻す。テストPRをクローズ(またはマージ)し、不要なら `aiagent/test-pr` ブランチを削除する。
+
+### aiagent の sudo / Docker アクセスを見直す
+- 優先度: 中
+- 背景: 2026-07-05 の状況確認で、Claude Code (aiagent) セッションから `sudo` が非対話実行不可(パスワード要求)、Docker ソケットにも直接アクセス権限がなく、コンテナ稼働状況やバックアップログを直接確認できなかった。バックログの「スマホで仕事できる体制」完了メモには sudo スコープ化済みとあるが、このセッションには反映されていない。
+- 次の一歩: 現状の sudoers 設定(NOPASSWD スコープ)を確認し、aiagent の Claude Code セッションでも同様に効くようにするか検討する。
+
+### アプリ設定移設プラン(Part B)の続行判断
+- 優先度: 中
+- 背景: 2026-07-03 に承認された移設プラン(`docs/plans/apps-docs-migration.md`)のうち、Part A(docs の org 移設)は完了、Part B の Phase 0(棚卸し)も完了済み。Phase 1(`server-config` リポジトリの器づくり)以降・Phase 2(6アプリの移設)が未着手。
+- 次の一歩: Phase 1〜2 に着手するか、着手するならどのアプリから始めるか(プラン推奨順: cloudflared→adguardhome→npm→wireguard→immich→nextcloud)を決める。
+
 ## 近いうち
 
 ### バイブコーディングをマルチエージェント開発に進化させる
