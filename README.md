@@ -111,6 +111,7 @@
 11. (オプション) [n8n で家庭用自動化ハブを立てる](docs/11-n8n.md)
 12. [Immich の導入 (写真・動画管理)](docs/12-immich.md)
 13. [ダッシュボード (Homepage) の導入](docs/13-dashboard.md)
+14. [Obsidian のセルフホスト (Self-hosted LiveSync)](docs/14-obsidian-livesync.md)
 
 構築完了後の定常運用 (端末追加・アカウント追加・障害対応など) は [docs/operations.md](docs/operations.md) にまとめてある。
 
@@ -145,3 +146,4 @@
 | 2026-06-13 | SSH (Termius / macOS) 接続時に日本語が入力・表示できない問題に対処。クライアントが送る不正な `LC_CTYPE=UTF-8` を `~/.bashrc` / `~/.inputrc` で UTF-8 ロケールに上書き。手順とトラブルシュートを `docs/operations.md` §9 に追加 |
 | 2026-06-14 | ダッシュボード Homepage を導入。Docker Compose で `homepage` を追加し、各サービスへのリンク＋稼働ステータス＋CPU/メモリ/SSD/HDD 使用量を集約。NPM で `dashboard.home.lan` に転送 (LAN 内のみ)。手順は `docs/13-dashboard.md` |
 | 2026-06-23 | 外付け HDD (TOSHIBA 3TB) へバックアップ先を移行しようとしたが、**SMART 故障判定** (Reallocated_Sector_Ct 2005 / FAILING_NOW / 通電約5.2年) と判明したため**中止**し、内蔵 HDD 宛先のまま運用継続。健康なドライブ入手後に再挑戦。教訓: ドライブは使用前に `smartctl` で健康確認 / 大容量 ext4 は `lazy_itable_init=1` で作成。内蔵 sda・sdb は SMART PASSED で健全と確認済み。詳細は `docs/09-backup.md` |
+| 2026-07-05 | Obsidian のノート同期(Self-hosted LiveSync 方式、CouchDB バックエンド)を追加。設定は `obukata-homenas/server-config` の `obsidian/` に追加済み(PR: `server-config#1`)。アクセスは Tailscale 経由の非公開のみ、`*.obukata.uk` の既存ワイルドカード証明書・DNS を再利用。実サーバへのデプロイ手順は `docs/14-obsidian-livesync.md`(デプロイ自体は本項執筆時点で未実施、obukata 側の作業待ち) |
