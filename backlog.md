@@ -25,11 +25,6 @@
 - 背景: 2026-07-05 の状況確認で、Claude Code (aiagent) セッションから `sudo` が非対話実行不可(パスワード要求)、Docker ソケットにも直接アクセス権限がなく、コンテナ稼働状況やバックアップログを直接確認できなかった。バックログの「スマホで仕事できる体制」完了メモには sudo スコープ化済みとあるが、このセッションには反映されていない。
 - 次の一歩: 現状の sudoers 設定(NOPASSWD スコープ)を確認し、aiagent の Claude Code セッションでも同様に効くようにするか検討する。
 
-### アプリ設定移設プラン(Part B)の続行判断
-- 優先度: 中
-- 背景: 2026-07-03 に承認された移設プラン(`docs/plans/apps-docs-migration.md`)のうち、Part A(docs の org 移設)は完了、Part B の Phase 0(棚卸し)も完了済み。Phase 1(`server-config` リポジトリの器づくり)以降・Phase 2(6アプリの移設)が未着手。
-- 次の一歩: Phase 1〜2 に着手するか、着手するならどのアプリから始めるか(プラン推奨順: cloudflared→adguardhome→npm→wireguard→immich→nextcloud)を決める。
-
 ## 近いうち
 
 ### バイブコーディングをマルチエージェント開発に進化させる
@@ -85,6 +80,11 @@
 - 次の一歩: 健康な外付け（購入後にまずSMART確認）を入手 → 既定手順（mkfs lazy init → OMVマウント → homenas-backup.sh の DEST_ROOT 差し替え → ダッシュボードの BACKUPS_PATH）で移行
 
 ## 完了
+
+### アプリ設定移設プラン(Part B)の続行判断
+- 優先度: 中
+- 背景: 2026-07-03 に承認された移設プラン(`docs/plans/apps-docs-migration.md`)のうち、Part A(docs の org 移設)は完了、Part B の Phase 0(棚卸し)も完了済みだった。Phase 1(`server-config` リポジトリの器づくり)・Phase 2(6アプリの整合性確認)が残っていた。
+- 次の一歩: 完了(2026-07-06)。Phase 1は実は初期構成の時点で6アプリ全ての `docker-compose.yml`+`.env.example` が既に取り込まれていたと判明。Phase 2はobukataが実機で `sudo diff` を実行し、6アプリ(adguardhome/cloudflared/immich/nextcloud/npm/wireguard)全てで `/opt/ops/apps/server-config` と実体(`/srv/compose`)の差分ゼロを確認。追加のcommitは不要だった。デプロイパターンは全アプリ(ii)バックアップのみ(OMV UIが編集の主)で確定。詳細は `docs/plans/apps-docs-migration.md`。残るPhase 3(仕上げ)は優先度低のため様子見。
 
 ### Tailscale を導入して VPN を快適化（非公開アクセスの土台）
 - 優先度: 中
