@@ -40,7 +40,22 @@
 ### Obsidian をセルフホスティングする
 - 優先度: 中
 - 背景: ノート/ナレッジを自前管理したい。クラウド任せにせず homenas でホストする。
-- 次の一歩: 2026-07-02 以降に着手。まず方式を確定（端末間同期=Self-hosted LiveSync(CouchDB) / ブラウザ閲覧用 Web フロント / 単なる vault 同期・バックアップ のどれか）→ docker で構築 → 公開せず Tailscale 等の内部アクセス前提。
+- 次の一歩: 【2026-07-06 進捗】Self-hosted LiveSync(CouchDB)方式で構築・稼働確認済み(iPhone/Mac
+  2台で同期成功、Tailscale経由の非公開アクセス)。設定は `server-config` の `obsidian/`、手順は
+  `docs/14-obsidian-livesync.md`。残りは奥様の端末(3台目)の追加のみ。
+
+### サーバのドキュメントを Obsidian で気軽に閲覧・編集できるようにする
+- 優先度: 中
+- 背景: Obsidianでのノート同期(Self-hosted LiveSync)を導入した本来の目的は、homenasの
+  ドキュメント(`/opt/ops/docs`)をObsidianで気軽に読み書きすること。ただしdocsはGit(PRレビュー
+  前提)で管理されており、Obsidian(CouchDBでライブ同期)と直接橋渡しする自動連携は、技術的な
+  不確実性(Self-hosted LiveSync公式CLIの`mirror`コマンドが候補だが、常駐化やgit内部ファイルの
+  除外などで未検証な点が多い)と実装コストの見合いから、2026-07-06時点では見送った。「気軽に
+  確認・書き換えできるようにする」ことは引き続き達成したい目標。
+- 次の一歩: (1) まず現状のdocsの内容を一度ObsidianのVaultにコピーして読める状態にする(簡易対応)。
+  (2) 実際に使ってみて、自動連携が本当に必要になるくらいの頻度で編集したくなるか見極めた上で、
+  必要ならSelf-hosted LiveSyncのCLI(mirrorコマンド)によるgit⇄CouchDB双方向ブリッジを改めて
+  調査・設計する。
 
 ## いつか
 
