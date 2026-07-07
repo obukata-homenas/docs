@@ -15,11 +15,6 @@
 - 背景: 2026-07-05 のサーバ状況確認で、`/opt/ops/docs` に未コミットの変更(`plans/apps-docs-migration.md` の修正、`plans/phase0-inventory.md` の未追跡ファイル)があると判明。
 - 次の一歩: 内容を確認し、問題なければ commit & push(ブランチ→PR方式で)。
 
-### server-config のテストブランチ/PR の片付け
-- 優先度: 低
-- 背景: 2026-07-05 に branch→push→PR フローの動作確認で作った `aiagent/test-pr` ブランチ・PRが残っている。作業ツリーも main ではなくそのブランチのままになっている。
-- 次の一歩: `main` に戻す。テストPRをクローズ(またはマージ)し、不要なら `aiagent/test-pr` ブランチを削除する。
-
 ### aiagent の sudo / Docker アクセスを見直す
 - 優先度: 中
 - 背景: 2026-07-05 の状況確認で、Claude Code (aiagent) セッションから `sudo` が非対話実行不可(パスワード要求)、Docker ソケットにも直接アクセス権限がなく、コンテナ稼働状況やバックアップログを直接確認できなかった。バックログの「スマホで仕事できる体制」完了メモには sudo スコープ化済みとあるが、このセッションには反映されていない。
@@ -80,6 +75,11 @@
 - 次の一歩: 健康な外付け（購入後にまずSMART確認）を入手 → 既定手順（mkfs lazy init → OMVマウント → homenas-backup.sh の DEST_ROOT 差し替え → ダッシュボードの BACKUPS_PATH）で移行
 
 ## 完了
+
+### server-config のテストブランチ/PR の片付け
+- 優先度: 低
+- 背景: 2026-07-05 に branch→push→PR フローの動作確認で作った `aiagent/test-pr` ブランチが残っていた。作業ツリーも main ではなくそのブランチのままになっていた。
+- 次の一歩: 完了(2026-07-07)。マージ済みの `aiagent/add-obsidian-livesync`・`aiagent/fix-obsidian-couchdb-exposure` とあわせてリモートブランチ3つを削除。`main` に復帰。ローカルの `aiagent/test-pr`(未マージのため強制削除がaiagent側では権限拒否対象)はobukataが手動で削除。
 
 ### アプリ設定移設プラン(Part B)の続行判断
 - 優先度: 中
