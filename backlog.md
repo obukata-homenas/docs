@@ -22,6 +22,17 @@
 
 ## 近いうち
 
+### todo-app の再デプロイを簡略化する
+- 優先度: 中
+- 背景: 今のtodo-appの更新手順(git pull→sudo cpでファイルコピー→sudo -iでroot化→docker
+  compose build/up)は毎回手間がかかり、obukata本人から「面倒」との声あり。「aiagentの
+  sudo/Dockerアクセスを見直す」(今やる、未着手)と関連するが、それとは別に、newdash
+  (server-dashboard)にある `newdash-deploy.sh` のような、NOPASSWDスコープの専用デプロイ
+  スクリプト1本で完結させる方式も検討に値する。
+- 次の一歩: aiagentのsudo/Dockerアクセス見直しの結論を踏まえつつ、todo-app専用の
+  デプロイスクリプト(1コマンド化)を用意するか、aiagent自身がdocker操作できるようにするか、
+  方針を決めて実装する。
+
 ### Obsidian をセルフホスティングする
 - 優先度: 中
 - 背景: ノート/ナレッジを自前管理したい。クラウド任せにせず homenas でホストする。
