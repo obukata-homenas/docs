@@ -130,16 +130,88 @@ AdGuard Home 側は `*.obukata.uk` のワイルドカード rewrite が既に存
 
 ## 6. 各端末の Obsidian 設定
 
+実際に3台(iPhone/Mac)構築してハマったポイントを反映済み。次の端末を追加するときはこの章だけ
+見れば迷わないはず。
+
+### 6-0. 前提: Tailscale が必須
+
+`obsidian.obukata.uk` は公開DNSには存在せず、AdGuard Home が「Tailscale経由で来た問い合わせ」
+にだけサーバーのTailscale IPを返す仕組み。**同じLAN内にいてもTailscaleに接続していない端末
+からは繋がらない**(DNSが引けない上に、Tailscale IP自体そもそも経路的に届かない)。
+
+新しい端末を追加する前に:
+1. その端末にTailscaleアプリをインストールし、他の端末と同じアカウントでログイン・接続
+2. DNSの「Override local DNS」設定はTailscaleのアカウント側(管理コンソール)で1回設定済みなので、
+   新しい端末は同じアカウントでログインするだけで自動的に反映される(端末ごとの追加設定は不要)
+3. 確認: ブラウザで `https://obsidian.obukata.uk/_utils` を開いてログイン画面が出ればOK
+
+### 6-1. 1台目(最初の端末)のセットアップ
+
+初回はサーバー情報を手入力する。
+
 1. Obsidian → 設定 → コミュニティプラグイン → 「Self-hosted LiveSync」を検索してインストール・有効化
-2. プラグイン設定でサーバURL `https://obsidian.obukata.uk`、ユーザー名/パスワードに
-   `COUCHDB_USER`/`COUCHDB_PASSWORD` を入力
-3. **エンドツーエンド暗号化パスフレーズを設定する(強く推奨)**。CouchDB はノートの中身を
+2. プラグインの Setup ウィザードで「Start」(新規セットアップ)を選ぶ。既存の Setup URI は無いので
+   「Connect with Setup URI」ではなくこちら
+3. Remote Type は `CouchDB` を選択
+4. 接続情報を入力:
+   - Server URI: `https://obsidian.obukata.uk`
+   - Username / Password: `.env` の `COUCHDB_USER` / `COUCHDB_PASSWORD`
+   - Database name: 好きな名前(小文字・記号なし。例: `obsidian-vault`)。事前にCouchDB側で
+     作成しておく必要はなく、自動的に作られる
+   - Use Internal API: **OFFのままでよい**(CORSがどうしても解決できない時だけの緊急手段)
+5. **エンドツーエンド暗号化パスフレーズを設定する(強く推奨)**。CouchDB はノートの中身を
    暗号化せず平文で保存し、日次バックアップにもそのまま平文で入るため、これを設定しないと
-   ディスクやバックアップに直接アクセスできる人には内容が読めてしまう。パスフレーズを設定
-   すれば、サーバに保存される時点で暗号化された状態になる。**パスフレーズを忘れると復元
-   できなくなる**ので、忘れない場所に控えておくこと。
-4. 他の端末でも同じ URL・認証情報・パスフレーズで設定(1台目が同期の起点になる)
-5. Vault が大きい場合、初回同期は時間がかかる(想定内)
+   ディスクやバックアップに直接アクセスできる人には内容が読めてしまう。**パスフレーズを
+   忘れると復元できなくなる**ので、パスワードマネージャー等に必ず控えておくこと
+6. **Obfuscate Properties にチェックを入れる(推奨)**。ファイルパス・ファイル名・作成/更新日時
+   などのメタデータをサーバー上で隠せる(ノートの中身はE2E暗号化で守られるが、メタデータは
+   別。副作用はほぼ無い)
+7. 初回のデータ同期方法を聞かれる:
+   - 全端末ともVaultが空(これから新規に使う)なら **「Compare time and take newer」を選べば
+     どれを選んでも安全**(消えるデータが無いため)
+   - もし既存のノートが入っている端末が1台でもある場合は、**そのノートが入っている端末を
+     必ず1台目にする**。空のVaultを「Overwrite all with remote files」的な選択肢で
+     同期してしまうと、既存ノートが消える恐れがある
+8. Conflict/削除設定: 「Delete local files if deleted on remote」を推奨(普通の同期らしい
+   挙動。Obsidian自体がゴミ箱機能を持っているので誤削除の保険にもなる)
+9. 「Fetch Remote Configuration Failed」という警告が出ることがあるが、**1台目では正常**
+   (サーバー側にまだ取得すべき設定が無いだけ)。「Skip and proceed」で進めてよい
+
+### 6-2. 2台目以降のセットアップ(Setup URI を使う)
+
+1台目の設定が終わったら、2台目以降は Setup URI を使うと手入力が要らず楽。
+
+1. **1台目**のプラグイン設定 → Setupウィザード(🧙アイコン)→「現在の設定をSetup URIとして
+   コピー」的な項目を選ぶ
+2. URI暗号化用のパスフレーズを聞かれる(**手順6-1の⑤の暗号化パスフレーズとは別物**。
+   この受け渡し専用の一時的なものでよい)
+3. Setup URIがクリップボードにコピーされる。新しい端末に転送する(iPhone/Macならユニバーサル
+   クリップボード、それ以外は自分宛メッセージ等で)
+4. **新しい端末**でプラグインをインストール・有効化 → Setupウィザードで「Connect with Setup
+   URI」を選択 → 貼り付け → 手順②のパスフレーズを入力
+5. サーバーURL・認証情報・データベース名・E2E暗号化パスフレーズが自動入力される
+6. 初回同期方法を聞かれたら、**サーバーから取得する(Fetch)方向の選択肢を選ぶ**
+   (この新しい端末のVaultは空で、サーバー側に既にデータがあるはず。逆(空を優先)を選ぶと
+   サーバー側のデータを消しかねないので注意)
+
+### 6-3. 設定は終わったのに同期されない時(重要)
+
+セットアップ直後、ステータスバーが **「Sync: ↑0 ↓0」のまま変化しない**(エラーは出ない)
+ことがある。これは既知の挙動で、初回は手動で同期を1回蹴ってやる必要がある:
+
+1. コマンドパレットを開く(Mac: `Cmd+P`、スマホはObsidianの検索/コマンドアイコン)
+2. 「**Self-hosted LiveSync: Replicate now**」を実行
+3. それでも動かなければ「**Self-hosted LiveSync: Toggle LiveSync**」を1回OFF→ONし直す
+   (実体験: 初期状態でLiveSyncがEnableになっていないことがあった)
+
+### 6-4. トラブルシューティング早見表
+
+| 症状 | 原因・対処 |
+|---|---|
+| `DANGER Failed to connect to the server` | まずTailscaleが接続されているか確認(§6-0)。次にブラウザで `https://obsidian.obukata.uk/_utils` が開けるか確認 |
+| `Fetch Remote Configuration Failed` | 1台目では正常。「Skip and proceed」でよい |
+| ステータスが `Sync: ↑0 ↓0` のまま | §6-3 参照(Replicate now / Toggle LiveSync) |
+| Fauxtonでデータが増えているか確認したい | `https://obsidian.obukata.uk/_utils` → Databases → 対象データベース名 → ドキュメント件数を確認。Obfuscate Properties ON だとファイル名等は読めないが正常 |
 
 ## 7. 任意の追加ハードニング
 
