@@ -1,112 +1,26 @@
-# やりたいこと（バックログ）
+# やりたいこと(バックログ) — 過去ログ
 
 <!--
-使い方:
-- 思いついたら Claude に伝えれば、ここに追記されます（優先度付け・状態変更・完了もお任せ）。
-- 状態の見出し(##)は「今やる / 近いうち / いつか / 完了」の4つ。
-- 各項目は「### タイトル」の下に 優先度(高/中/低) / 背景 / 次の一歩 を書く。
-- ダッシュボード dashboard.home.lan の「やりたいこと」ページに自動表示される。
+2026-07-10、todo-app(https://todo.obukata.uk)へ全項目を移行済み。
+以後の「やりたい事」の管理はtodo-app側が正。このファイルは移行前の履歴として残す。
 -->
 
-## 今やる
-
-### docs リポジトリの未コミット変更を確認・コミット
-- 優先度: 中
-- 背景: 2026-07-05 のサーバ状況確認で、`/opt/ops/docs` に未コミットの変更(`plans/apps-docs-migration.md` の修正、`plans/phase0-inventory.md` の未追跡ファイル)があると判明。
-- 次の一歩: 内容を確認し、問題なければ commit & push(ブランチ→PR方式で)。
-
-### aiagent の sudo / Docker アクセスを見直す
-- 優先度: 中
-- 背景: 2026-07-05 の状況確認で、Claude Code (aiagent) セッションから `sudo` が非対話実行不可(パスワード要求)、Docker ソケットにも直接アクセス権限がなく、コンテナ稼働状況やバックアップログを直接確認できなかった。バックログの「スマホで仕事できる体制」完了メモには sudo スコープ化済みとあるが、このセッションには反映されていない。
-- 次の一歩: 現状の sudoers 設定(NOPASSWD スコープ)を確認し、aiagent の Claude Code セッションでも同様に効くようにするか検討する。
-
-## 近いうち
-
-### todo-app の再デプロイを簡略化する
-- 優先度: 中
-- 背景: 今のtodo-appの更新手順(git pull→sudo cpでファイルコピー→sudo -iでroot化→docker
-  compose build/up)は毎回手間がかかり、obukata本人から「面倒」との声あり。「aiagentの
-  sudo/Dockerアクセスを見直す」(今やる、未着手)と関連するが、それとは別に、newdash
-  (server-dashboard)にある `newdash-deploy.sh` のような、NOPASSWDスコープの専用デプロイ
-  スクリプト1本で完結させる方式も検討に値する。
-- 次の一歩: aiagentのsudo/Dockerアクセス見直しの結論を踏まえつつ、todo-app専用の
-  デプロイスクリプト(1コマンド化)を用意するか、aiagent自身がdocker操作できるようにするか、
-  方針を決めて実装する。
-
-### Obsidian をセルフホスティングする
-- 優先度: 中
-- 背景: ノート/ナレッジを自前管理したい。クラウド任せにせず homenas でホストする。
-- 次の一歩: 【2026-07-06 進捗】Self-hosted LiveSync(CouchDB)方式で構築・稼働確認済み(iPhone/Mac
-  2台で同期成功、Tailscale経由の非公開アクセス)。設定は `server-config` の `obsidian/`、手順は
-  `docs/14-obsidian-livesync.md`。残りは奥様の端末(3台目)の追加のみ。
-
-### サーバ関連ドキュメントを Obsidian で気軽に閲覧・編集できるようにする
-- 優先度: 中
-- 背景: Obsidianでのノート同期(Self-hosted LiveSync)を導入した本来の目的は、homenasの
-  ドキュメント(`/opt/ops/docs`)をObsidianで気軽に読み書きすること。ただしdocsはGit(PRレビュー
-  前提)で管理されており、Obsidian(CouchDBでライブ同期)と直接橋渡しする自動連携は、技術的な
-  不確実性(Self-hosted LiveSync公式CLIの`mirror`コマンドが候補だが、常駐化やgit内部ファイルの
-  除外などで未検証な点が多い)と実装コストの見合いから、2026-07-06時点では見送った。
-  【2026-07-09追記】対象範囲を拡大したい:`/opt/ops/docs` に加えて、aiagent(Claude)向けの
-  ドキュメント(`CLAUDE.md`・各種`SKILL.md`等、`/home/aiagent/.claude` 配下。現状git管理外)も
-  Obsidianで見たり触ったりしたい。Gitで管理する前提(レビュー・履歴)は変えない。Obsidianが
-  この目的に対して最善の手段かどうかも含め、運用方法を一緒に検討したい。
-- 次の一歩: 着手時は現状の問題点の確認から始める(具体的に何が不便か、`docs`と
-  aiagent向けドキュメントそれぞれの構成・アクセス経路の違いなど)。その上でObsidian経由が
-  適切か、他の方法が良いかを検討する。
+## 完了
 
 ### docs/backlog.md の内容を todo-app へ移行する
 - 優先度: 中
-- 背景: 「やりたい事リスト」独立サービス(todo-app)がデプロイ完了し稼働中。decisions.mdの
-  方針通り、`docs/backlog.md` は当面並行運用し、実際の項目移行はまだこれから。
-- 次の一歩: todo-appを実際にしばらく使ってみて操作感に問題ないか確認した上で、backlog.mdの
-  既存項目をtodo-appに移し、backlog.mdは過去ログとして参照専用にする(ダッシュボードの
-  backlogページの扱いも合わせて決める)。
-
-## いつか
-
-### Mermaid 構成図の見た目を調整する
-- 優先度: 低
-- 背景: dashboard.home.lan/infra の構成図、初期サイズ・横長レイアウト・文字/配色などの見た目をもう少し良くしたい（一旦は「表示＆ズームできればOK」とした）。
-- 次の一歩: homelab.mmd の構造見直し（横長→縦方向に寄せる/サブグラフ整理）、Mermaid テーマ微調整、初期ズーム/フィットの調整。
-
-### ターミナルを“オタク環境”にする（nvim / yazi / starship 等）
-- 優先度: 低
-- 背景: ターミナルを“テンションの上がる見た目”にしたい。Ghostty・WezTerm を試したが日本語IME(変換)が弱く断念し、iTerm2 に定着。emulator は iTerm2 のままで、中身(nvim/yazi/starship/配色テーマ)で作り込む方針（中身はターミナル非依存）。
-- 次の一歩: やる気が出たら nvim(LazyVim 等)から段階的に。Mac側の Claude Code(導入済) で進めるのが楽。
-
-### 国家資格の過去問出題Webサービス（広告収入）
-- 優先度: 中
-- 背景: 国家資格の受験者向けに過去問を出題する Web サービスを作りたい。広告収入が目的。
-- 次の一歩: ①対象資格を1つ決める(過去問の入手性・受験者数・競合で判断) ②MVP を定義(出題→解答→正誤→解説のループ) ③スタック(既存の Next.js + Vercel 構成を流用可)。まず「資格1つ＋問題データの入手方法」の確定が最初の関門。※上のマルチエージェント開発の最初の題材に最適。
-
-### Mac の Homebrew を arm64(/opt/homebrew) に移行
-- 優先度: 低
-- 背景: Mac(Apple Silicon)の Homebrew が x64(/usr/local・Rosetta)のまま。ネイティブ拡張を持つツールが arm64 を取れず壊れる原因(Claude Code 導入時に発覚)。当面は個別にネイティブ導入で回避できるが、根治には arm64 brew への移行が必要。
-- 次の一歩: 現状の `brew list` を棚卸し → /opt/homebrew に arm64 Homebrew を導入 → パッケージを arm64 で入れ直し → PATH を /opt/homebrew 優先に → x64 brew を撤去。既存ツール(gh/rclone 等)に影響するので計画的に。
-
-### 健康な外付けHDDでクロスドライブ・バックアップへ再移行
-- 優先度: 中
-- 背景: 現在バックアップは内蔵HDD内のみ（同一ドライブ）で、HDD故障時に元データと共倒れのリスク。別筐体に退避してクロスドライブ保護にしたい。前回用意した外付けはSMART故障で断念。
-- 次の一歩: 健康な外付け（購入後にまずSMART確認）を入手 → 既定手順（mkfs lazy init → OMVマウント → homenas-backup.sh の DEST_ROOT 差し替え → ダッシュボードの BACKUPS_PATH）で移行
-
-## 完了
+- 背景: 「やりたい事リスト」独立サービス(todo-app)がデプロイ完了し稼働中。decisions.mdの方針通り、`docs/backlog.md` は当面並行運用し、実際の項目移行はまだこれからだった。
+- 次の一歩: 完了(2026-07-10)。今やる/近いうち/いつかの計10件をtodo-appへ移行(`POST /api/items` + AI_PROGRESS_TOKEN経由で移行元メモを1件ずつ添付)。以後、本ファイルは過去ログ・参照専用とし、新規の「やりたい事」はtodo-app側で管理する。
 
 ### バイブコーディングをマルチエージェント開発に進化させる
 - 優先度: 中
 - 背景: 今は技術スタックや実装方法まで指定するスタイル。ゴールだけ伝えて、プランナー/エンジニア/デザイナー的なエージェントに分担させて自律開発する手法を試したい。
-- 次の一歩: 完了(2026-07-10)。todo-appプロジェクトで実践。マネージャー(要件ヒアリング・調整)/
-  フロントエンド(見た目はobukataと直接やり取り)/バックエンド(データモデル・API)/QA
-  (独立レビュー)の4エージェント体制で、要件ヒアリングから実装・デプロイまで一通り完走。
-  aiagentは各エージェントの結果を統合・報告する「代表」役に徹する運用。
+- 次の一歩: 完了(2026-07-10)。todo-appプロジェクトで実践。マネージャー(要件ヒアリング・調整)/フロントエンド(見た目はobukataと直接やり取り)/バックエンド(データモデル・API)/QA(独立レビュー)の4エージェント体制で、要件ヒアリングから実装・デプロイまで一通り完走。aiagentは各エージェントの結果を統合・報告する「代表」役に徹する運用。
 
 ### 「やりたい事リスト」を独立したサービスとして切り出す
 - 優先度: 中
 - 背景: 現状ダッシュボードの「やりたい事」ページは `docs/backlog.md` をそのまま表示しているだけで見づらい。Todoアプリ的、あるいはチケット発行するタスク管理サービス的な、専用の見やすいサービスとして独立させたい。Claudeにフルスクラッチで作ってもらうか、既存のセルフホスト可能なタスク管理サービス(例: Vikunja, Planka 等)を導入するか、方針から検討したい。
-- 次の一歩: 完了(2026-07-10)。マネージャー・frontend・backend・QAの4エージェント体制で
-  フルスクラッチ開発(既存ツールは見た目の好みが合わず不採用)。要件ヒアリング→デザイン3案→
-  実装→QAレビュー→デプロイまで完了し、`https://todo.obukata.uk` で稼働中(Tailscale経由の
-  非公開アクセス)。リポジトリは `obukata-homenas/todo-app`。`docs/backlog.md` は当面並行運用。
+- 次の一歩: 完了(2026-07-10)。マネージャー・frontend・backend・QAの4エージェント体制でフルスクラッチ開発(既存ツールは見た目の好みが合わず不採用)。要件ヒアリング→デザイン3案→実装→QAレビュー→デプロイまで完了し、`https://todo.obukata.uk` で稼働中(Tailscale経由の非公開アクセス)。リポジトリは `obukata-homenas/todo-app`。
 
 ### server-config のテストブランチ/PR の片付け
 - 優先度: 低
@@ -118,27 +32,27 @@
 - 背景: 2026-07-03 に承認された移設プラン(`docs/plans/apps-docs-migration.md`)のうち、Part A(docs の org 移設)は完了、Part B の Phase 0(棚卸し)も完了済みだった。Phase 1(`server-config` リポジトリの器づくり)・Phase 2(6アプリの整合性確認)が残っていた。
 - 次の一歩: 完了(2026-07-06)。Phase 1は実は初期構成の時点で6アプリ全ての `docker-compose.yml`+`.env.example` が既に取り込まれていたと判明。Phase 2はobukataが実機で `sudo diff` を実行し、6アプリ(adguardhome/cloudflared/immich/nextcloud/npm/wireguard)全てで `/opt/ops/apps/server-config` と実体(`/srv/compose`)の差分ゼロを確認。追加のcommitは不要だった。デプロイパターンは全アプリ(ii)バックアップのみ(OMV UIが編集の主)で確定。詳細は `docs/plans/apps-docs-migration.md`。残るPhase 3(仕上げ)は優先度低のため様子見。
 
-### Tailscale を導入して VPN を快適化（非公開アクセスの土台）
+### Tailscale を導入して VPN を快適化(非公開アクセスの土台)
 - 優先度: 中
 - 背景: 外出先から Immich/Nextcloud アプリ・dashboard に繋ぎたい＆WireGuardのフルトンネルで帰宅時にネットが切れる問題を解消したかった。
-- 次の一歩: 完了（2026-06-27）。サーバ＋スマホ/PC に Tailscale 導入(squib02@gmail.com)。スプリットトンネルで常時ONでも通常ネットOK・外出先から接続OKを実証。Tailscale DNS=AdGuard(100.72.254.73)に「Override local DNS」→全端末で広告ブロック＆内部名解決(バイパスは Tailscale OFF)。AdGuardに `*.obukata.uk`→100.72.254.73 のrewrite、NPMで `*.obukata.uk` のLet's Encryptワイルドカード証明書(CloudflareトークンでDNS-01)＋Proxy Host(immich/nextcloud/dashboard.obukata.uk)。Nextcloudは override.yml の OVERWRITEHOST 削除で多ドメイン対応。アプリは `https://〜.obukata.uk` で設定・動作確認済み。subnet router / WireGuard撤去 は任意で後日。
+- 次の一歩: 完了(2026-06-27)。サーバ＋スマホ/PC に Tailscale 導入(squib02@gmail.com)。スプリットトンネルで常時ONでも通常ネットOK・外出先から接続OKを実証。Tailscale DNS=AdGuard(100.72.254.73)に「Override local DNS」→全端末で広告ブロック＆内部名解決(バイパスは Tailscale OFF)。AdGuardに `*.obukata.uk`→100.72.254.73 のrewrite、NPMで `*.obukata.uk` のLet's Encryptワイルドカード証明書(CloudflareトークンでDNS-01)＋Proxy Host(immich/nextcloud/dashboard.obukata.uk)。Nextcloudは override.yml の OVERWRITEHOST 削除で多ドメイン対応。アプリは `https://〜.obukata.uk` で設定・動作確認済み。subnet router / WireGuard撤去 は任意で後日。
 
-### Cloudflare Tunnel で自宅サーバを公開（セキュリティ最優先）
+### Cloudflare Tunnel で自宅サーバを公開(セキュリティ最優先)
 - 優先度: 中
 - 背景: ポート開放せず外部公開＋ガッチガチ認証をやりたかった。
-- 次の一歩: 完了（2026-06-26）。独自ドメイン **obukata.uk** を Cloudflare で取得、Zero Trust チーム `obukata`、トンネル `homelab` を作成、cloudflared を Docker(proxy-net)で起動、**dash.obukata.uk → newdash** を公開し **Cloudflare Access(Allow: squib02@gmail.com のみ)** で施錠まで検証OK。ただし方針転換：Immich/Nextcloud のアプリは Access で壊れる＆管理系は非公開が安全なので、当面は **VPN(Tailscale)前提の非公開運用**に。Cloudflare/ドメインは将来の公開サービス用に温存（cloudflared コネクタは稼働したまま＝いつでも再利用可）。
+- 次の一歩: 完了(2026-06-26)。独自ドメイン **obukata.uk** を Cloudflare で取得、Zero Trust チーム `obukata`、トンネル `homelab` を作成、cloudflared を Docker(proxy-net)で起動、**dash.obukata.uk → newdash** を公開し **Cloudflare Access(Allow: squib02@gmail.com のみ)** で施錠まで検証OK。ただし方針転換:Immich/Nextcloud のアプリは Access で壊れる＆管理系は非公開が安全なので、当面は **VPN(Tailscale)前提の非公開運用**に。Cloudflare/ドメインは将来の公開サービス用に温存(cloudflared コネクタは稼働したまま=いつでも再利用可)。
 
 ### スマホで仕事できる体制を作る
 - 優先度: 中
 - 背景: スマホ(Termius)→ホームサーバ→tmux でこのセッション、という流れ。権限コマンドの実行・コピペが大変で、内容確認もできずブルシット感が強かった。
-- 次の一歩: 完了（2026-06-25）。sudoスコープ化で権限コマンドは Claude が直接実行(手打ち/確認の手間ゼロ)、tmuxコピーは OSC52 整備、dashboard.home.lan も iPad から閲覧可(Wi-Fi の DNS を 192.168.3.19 に手動設定)。日本語IMEは Ghostty/WezTerm 等を検討したが Termius が最もマシと確定し許容。
+- 次の一歩: 完了(2026-06-25)。sudoスコープ化で権限コマンドは Claude が直接実行(手打ち/確認の手間ゼロ)、tmuxコピーは OSC52 整備、dashboard.home.lan も iPad から閲覧可(Wi-Fi の DNS を 192.168.3.19 に手動設定)。日本語IMEは Ghostty/WezTerm 等を検討したが Termius が最もマシと確定し許容。
 
-### tmux のコピーモードを直す（キーボードで選択コピー）
+### tmux のコピーモードを直す(キーボードで選択コピー)
 - 優先度: 高
 - 背景: tmux 上の文字をうまくコピーできない。Shift＋ドラッグ頼みで、キーボードでの選択コピーが効かなかった。スマホ作業の土台にもなる。
-- 次の一歩: 完了（2026-06-25）。~/.tmux.conf に mode-keys vi / mouse on / set-clipboard on / terminal-features clipboard / v・y・C-v バインドを設定。SSH越しのMacクリップボードは Warp が OSC52 非対応でNGだったため Ghostty に変更して解決（サーバに xterm-ghostty terminfo も導入）。
+- 次の一歩: 完了(2026-06-25)。~/.tmux.conf に mode-keys vi / mouse on / set-clipboard on / terminal-features clipboard / v・y・C-v バインドを設定。SSH越しのMacクリップボードは Warp が OSC52 非対応でNGだったため Ghostty に変更して解決(サーバに xterm-ghostty terminfo も導入)。
 
 ### サーバのSMART監視をSlack通知化
 - 優先度: 中
-- 背景: ドライブ故障を事前に察知したい（外付けが壊れていた件の再発防止）
-- 次の一歩: 完了（smartd + smart-slack.sh、2026-06-24 稼働）
+- 背景: ドライブ故障を事前に察知したい(外付けが壊れていた件の再発防止)
+- 次の一歩: 完了(smartd + smart-slack.sh、2026-06-24 稼働)
