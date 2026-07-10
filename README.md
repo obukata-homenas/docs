@@ -112,6 +112,7 @@
 12. [Immich の導入 (写真・動画管理)](docs/12-immich.md)
 13. [ダッシュボード (Homepage) の導入](docs/13-dashboard.md)
 14. [Obsidian のセルフホスト (Self-hosted LiveSync)](docs/14-obsidian-livesync.md)
+15. [todo-app (やりたい事リスト専用サービス)](docs/15-todo-app.md)
 
 構築完了後の定常運用 (端末追加・アカウント追加・障害対応など) は [docs/operations.md](docs/operations.md) にまとめてある。
 
