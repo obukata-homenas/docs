@@ -1,4 +1,4 @@
-# 15. todo-app(やりたい事リスト専用サービス)
+# todo-app(やりたい事リスト専用サービス)
 
 `server-dashboard` に埋め込まれていた「やりたい事」ページ(`backlog.md` の読み取り専用ビュー)を
 独立させた、フルスクラッチのタスク管理サービス。
@@ -11,4 +11,4 @@
 - アクセス: `https://todo.obukata.uk`、Tailscale経由の非公開のみ(Obsidian等と同じ方式)
 - データ: SQLite(`/srv/appdata/todo-app/data/`、既存の日次バックアップに自動的に乗る)
 
-`docs/backlog.md` は当面並行運用し、移行が落ち着いたら正の座を退任する予定(backlog.md参照)。
+`backlog.md` は移行完了に伴い削除済み(2026-07-10)。「やりたい事リスト」の正はこのサービス(todo.obukata.uk)。
