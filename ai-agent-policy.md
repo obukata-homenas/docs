@@ -52,3 +52,27 @@ AI エージェントも対象**。作業開始時に一度は目を通すこと
 - 説明の前に `obukata-knowledge-level.md` を参照し、obukata の知識レベルに合わせて説明の
   詳しさ・専門用語の使用度合いを調整する。
 - 迷ったら、まず結論(やるべきこと/結果)を先に伝え、技術的な詳細は聞かれたら答える。
+
+## 8. デプロイなど root/Docker 権限が必要な繰り返し作業
+
+- aiagent は homenas サーバ上で root/Docker 権限を持たない。だからといって、デプロイのたびに
+  obukata に手順を代行実行してもらうやり方は避ける(何をしているか分からないコマンドを
+  繰り返し打たされ、結果の意味も分からない、という負担になるため)。
+- `docker` グループ権限や広い sudo 権限は事実上 root 相当になってしまうため付与しない。
+  代わりに、プロジェクトごとに次のパターンを使う:
+  1. root 所有・aiagent からは書き換え不可(`root:root`, mode `700`)な固定スクリプトを
+     `/opt/ops/bin/<project名>-redeploy.sh` に用意する。中身はそのプロジェクトの
+     「更新 → デプロイ」の一連の手順を1本にまとめたもの(例: `git pull` → デプロイ用
+     ディレクトリへ同期 → `docker compose build` → `up -d --force-recreate`)に加えて、
+     最後に自動検証(マイグレーション適用状況の確認、API 疎通確認 など)を行い、
+     成功/失敗をはっきり出力し、失敗時は非ゼロ終了する。
+  2. `/etc/sudoers.d/aiagent-<project名>-redeploy` に、そのスクリプトの絶対パスを
+     引数なし(`""`)で実行することだけを許可する NOPASSWD ルールを1本だけ追加する
+     (ワイルドカードや複数コマンドをまとめて許可することはしない)。
+  3. スクリプト内で GitHub への git 操作が必要な場合、SSH の鍵・ssh config は aiagent
+     ユーザー自身のホーム(`~/.ssh`)にあり root のホームには無いため、スクリプト自体は
+     root 実行でも git 関連のコマンドだけは `runuser -u aiagent -- git ...` で
+     aiagent に戻して実行する。
+- 実例: todo-app の `/opt/ops/bin/redeploy-todo-app.sh` +
+  `/etc/sudoers.d/aiagent-todo-app-redeploy`(todo-app 項目 #4「再デプロイを簡略化する」で対応)。
+  同様の繰り返しデプロイ作業が発生する別プロジェクトでも、このパターンを標準として使う。
